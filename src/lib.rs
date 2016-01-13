@@ -28,7 +28,7 @@ use std::time::Duration as StdDuration;
 //use std::thread::Thread;
 //use peer::{Peer};
 //use mydht_base::transport::{ReadTransportStream,WriteTransportStream};
-use mydht_base::transport::{Transport,ReaderHandle};
+use mydht_base::transport::{Transport,ReaderHandle,SerSocketAddr};
 //use std::iter;
 //use utils;
 //use super::Attachment;
@@ -64,7 +64,7 @@ impl Tcp {
 impl Transport for Tcp {
   type ReadStream = TcpStream;
   type WriteStream = TcpStream;
-  type Address = SocketAddr;
+  type Address = SerSocketAddr;
   fn start<C> (&self, readhandler : C) -> Result<()>
     where C : Fn(Self::ReadStream,Option<Self::WriteStream>) -> Result<ReaderHandle> {
     for socket in self.listener.incoming() {
@@ -96,10 +96,10 @@ impl Transport for Tcp {
     };
     Ok(())
   }
-  fn connectwith(&self,  p : &SocketAddr, _ : Duration) -> IoResult<(Self::WriteStream, Option<Self::ReadStream>)> {
+  fn connectwith(&self,  p : &SerSocketAddr, _ : Duration) -> IoResult<(Self::WriteStream, Option<Self::ReadStream>)> {
     // connect TODO new api timeout (third param)
     //let s = TcpStream::connect_timeout(p, self.connecttimeout);
-    let s = try!(TcpStream::connect(p));
+    let s = try!(TcpStream::connect(p.0));
 //    try!(s.set_keepalive (self.streamtimeout.num_seconds().to_u32()));
     if self.mult {
       let rs = try!(s.try_clone());
